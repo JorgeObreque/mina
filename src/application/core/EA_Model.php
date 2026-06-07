@@ -42,7 +42,12 @@ class EA_Model extends CI_Model
      */
     public function __construct()
     {
-        parent::__construct();
+        // Note: parent::__construct() intentionally omitted.
+        // CI_Model in Easy!Appointments 1.6.0 has no explicit constructor and
+        // some PHP 8.x versions raise "Cannot call constructor" when invoking
+        // parent::__construct() against a parent with no constructor. The
+        // base CI_Model behavior (magic __get for $this->db, etc.) still works
+        // because PHP invokes the implicit Object constructor automatically.
         $this->load->library('session');
         $this->tenant_id = (int) ($this->session->userdata('tenant_id') ?: 1);
     }
