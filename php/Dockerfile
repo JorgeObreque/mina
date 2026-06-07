@@ -35,6 +35,11 @@ COPY nginx.conf /etc/nginx/http.d/nginx.conf
 COPY php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY supervisord.conf /etc/supervisord.conf
 
+# Copy the Easy!Appointments application code into the image.
+# In dev compose this is overridden by a bind mount, but for production
+# the image must be self-contained.
+COPY . /var/www/html/
+
 RUN mkdir -p /var/www/html/storage \
     /var/www/html/logs \
     /run \
