@@ -1,20 +1,21 @@
-<?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['email_protocol'] = 'smtp';
-$config['email_mailpath'] = '/usr/sbin/sendmail';
-$config['email_smtp_host'] = getenv('SMTP_HOST') ?: 'localhost';
-$config['email_smtp_user'] = getenv('SMTP_USER') ?: '';
-$config['email_smtp_pass'] = getenv('SMTP_PASS') ?: '';
-$config['email_smtp_port'] = getenv('SMTP_PORT') ?: 1025;
-$config['email_smtp_timeout'] = 5;
-$config['email_smtp_keepalive'] = FALSE;
-$config['email_smtp_crypto'] = 'tls';
-$config['email_wordwrap'] = TRUE;
-$config['email_mailtype'] = 'html';
-$config['email_charset'] = 'UTF-8';
-$config['email_validate'] = TRUE;
-$config['email_priority'] = 3;
-$config['email_newline'] = "\r\n";
-$config['email_crlf'] = "\r\n";
-$config['email_badge_batch_size'] = 500;
+// Add custom values by settings them to the $config array.
+// Example: $config['smtp_host'] = 'smtp.gmail.com';
+// @link https://codeigniter.com/user_guide/libraries/email.html
+
+$config['useragent'] = 'Easy!Appointments';
+$config['protocol'] = 'mail'; // or 'smtp'
+$config['mailtype'] = 'html'; // or 'text'
+// $config['smtp_debug'] = '0'; // or '1'
+// $config['smtp_auth'] = TRUE; //or FALSE for anonymous relay.
+// $config['smtp_host'] = '';
+// $config['smtp_user'] = '';
+// $config['smtp_pass'] = '';
+// $config['smtp_crypto'] = 'ssl'; // or 'tls'
+// $config['smtp_port'] = 25;
+// $config['from_name'] = '';
+// $config['from_address'] = '';
+// $config['reply_to'] = '';
+$config['crlf'] = "\r\n";
+$config['newline'] = "\r\n";

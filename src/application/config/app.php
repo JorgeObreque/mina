@@ -1,38 +1,18 @@
-<?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
-$config['app_version'] = '1.0.0';
-$config['app_name'] = 'Mina';
-$config['app_url'] = getenv('APP_URL') ?: 'http://localhost';
-$config['encryption_key'] = getenv('JWT_SECRET') ?: 'mina-default-key';
-$config['base_url'] = $config['app_url'] . '/';
-$config['index_page'] = 'index.php';
-$config['uri_protocol'] = 'REQUEST_URI';
-$config['url_suffix'] = '';
-$config['language'] = 'english';
-$config['charset'] = 'UTF-8';
-$config['enable_hooks'] = TRUE;
-$config['subclass_prefix'] = 'EA_';
-$config['composer_autoload'] = FALSE;
-$config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
-$config['enable_query_strings'] = FALSE;
-$config['controller_trigger'] = 'c';
-$config['function_trigger'] = 'm';
-$config['directory_trigger'] = 'd';
-$config['allow_get_array'] = TRUE;
-$config['log_threshold'] = (ENVIRONMENT !== 'production') ? 4 : 1;
-$config['log_path'] = FCPATH . 'storage/logs/';
-$config['log_file_extension'] = 'log';
-$config['log_file_permissions'] = 0644;
-$config['error_views_path'] = '';
-$config['cache_path'] = FCPATH . 'storage/cache/';
-$config['cache_query_string'] = FALSE;
-$config['cache_driver'] = 'redis';
-$config['cache'['redis']['host']] = getenv('REDIS_HOST') ?: 'redis';
-$config['cache'['redis']['password']] = getenv('REDIS_PASSWORD') ?: NULL;
-$config['cache'['redis']['port']] = 6379;
-$config['cache'['redis']['timeout']] = 0.1;
-$config['cache'['redis']['database']] = 0;
-$config['symlinks_enabled'] = TRUE;
-$config['rewrite_short_tags'] = FALSE;
-$config['rewrite_old_style_urls'] = FALSE;
+/*
+|--------------------------------------------------------------------------
+| App Configuration
+|--------------------------------------------------------------------------
+|
+| Declare some of the global config values of Easy!Appointments.
+|
+*/
+
+$config['version'] = '1.6.0'; // This must be changed manually.
+
+$config['url'] = Config::BASE_URL;
+
+$config['debug'] = Config::DEBUG_MODE;
+
+$config['cache_busting_token'] = 'TSJ83';

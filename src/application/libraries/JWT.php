@@ -1,85 +1,116 @@
 <?php
-class JWT {
+/**
+ * JWT (JSON Web Token) implementation for Mina SaaS.
+ *
+ * Pure-PHP HS256 implementation with no external dependencies.
+ */
+class JWT
+{
+    private const ALG = 'HS256';
+    private const TYP = 'JWT';
 
-    private $secret;
-    private $ttl = 3600;
-    private $algorithm = 'HS256';
+    /**
+     * Encode a payload as a JWT.
+     *
+     * @param array|object $payload Data to embed in the token.
+     * @param string $secret Secret key.
+     * @param int|null $ttl Time-to-live in seconds (added to 'exp').
+     *
+     * @return string Encoded JWT.
+     */
+    public function encode($payload, string $secret, ?int $ttl = null): string
+    {
+        $header = ['typ' => self::TYP, 'alg' => self::ALG];
+        $payload = (array) $payload;
 
-    public function __construct() {
-        $this->secret = getenv('JWT_SECRET') ?: 'mina-default-secret-change-in-production';
-        $ttl = getenv('JWT_TTL');
-        if ($ttl) {
-            $this->ttl = (int)$ttl;
+        if ($ttl !== null) {
+            $payload['iat'] = $payload['iat'] ?? time();
+            $payload['exp'] = time() + $ttl;
         }
+
+        $segments = [
+            $this->b64UrlEncode(json_encode($header)),
+            $this->b64UrlEncode(json_encode($payload)),
+        ];
+
+        $signingInput = implode('.', $segments);
+        $signature = hash_hmac('sha256', $signingInput, $secret, true);
+        $segments[] = $this->b64UrlEncode($signature);
+
+        return implode('.', $segments);
     }
 
-    public function encode($payload) {
-        if (is_array($payload)) {
-            if (!isset($payload['iat'])) {
-                $payload['iat'] = time();
-            }
-            if (!isset($payload['exp'])) {
-                $payload['exp'] = time() + $this->ttl;
-            }
-        }
+    /**
+     * Decode and verify a JWT.
+     *
+     * @param string $token Encoded JWT.
+     * @param string|null $secret Secret key. If null, uses config('jwt.secret').
+     *
+     * @return object Decoded payload.
+     *
+     * @throws Exception If token is invalid, signature fails, or token is expired.
+     */
+    public function decode(string $token, ?string $secret = null): object
+    {
+        $secret ??= config('jwt.secret') ?? '';
 
-        $header = $this->_base64_url_encode(json_encode([
-            'alg' => $this->algorithm,
-            'typ' => 'JWT'
-        ]));
-
-        $payload = $this->_base64_url_encode(json_encode($payload));
-
-        $signature = $this->_base64_url_encode(
-            hash_hmac('sha256', $header . '.' . $payload, $this->secret, TRUE)
-        );
-
-        return $header . '.' . $payload . '.' . $signature;
-    }
-
-    public function decode($token) {
         $parts = explode('.', $token);
-
         if (count($parts) !== 3) {
-            throw new Exception('Invalid token structure');
+            throw new Exception('Invalid token format');
         }
 
-        list($header, $payload, $signature) = $parts;
+        [$h64, $p64, $s64] = $parts;
+        $header = json_decode($this->b64UrlDecode($h64), true);
+        $payload = json_decode($this->b64UrlDecode($p64), true);
+        $signature = $this->b64UrlDecode($s64);
 
-        $expected_signature = $this->_base64_url_encode(
-            hash_hmac('sha256', $header . '.' . $payload, $this->secret, TRUE)
-        );
+        if (!$header || !$payload) {
+            throw new Exception('Invalid token content');
+        }
 
-        if ($signature !== $expected_signature) {
+        if (($header['alg'] ?? null) !== self::ALG) {
+            throw new Exception('Unsupported algorithm');
+        }
+
+        $expected = hash_hmac('sha256', "$h64.$p64", $secret, true);
+        if (!hash_equals($expected, $signature)) {
             throw new Exception('Invalid signature');
         }
 
-        $payload = json_decode($this->_base64_url_decode($payload));
-
-        if ($payload->exp < time()) {
+        if (isset($payload['exp']) && time() > (int) $payload['exp']) {
             throw new Exception('Token expired');
         }
 
-        return $payload;
+        return (object) $payload;
     }
 
-    public function generate_token($user_id, $tenant_id, $role_slug, $extra = []) {
-        $payload = array_merge([
-            'user_id' => $user_id,
-            'tenant_id' => $tenant_id,
-            'role_slug' => $role_slug,
-            'iat' => time(),
-            'exp' => time() + $this->ttl
-        ], $extra);
-
-        return $this->encode($payload);
+    /**
+     * Extract the payload without verifying the signature.
+     *
+     * Useful for debugging only. Never use for trust decisions.
+     */
+    public function decodeUnsafe(string $token): ?object
+    {
+        $parts = explode('.', $token);
+        if (count($parts) !== 3) {
+            return null;
+        }
+        $payload = json_decode($this->b64UrlDecode($parts[1]), true);
+        return $payload ? (object) $payload : null;
     }
 
-    private function _base64_url_encode($data) {
+    private function b64UrlEncode(string $data): string
+    {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
-    private function _base64_url_decode($data) {
-        return base64_decode(strtr($data, '-_', '+/'));
+    private function b64UrlDecode(string $data): string
+    {
+        $padded = strtr($data, '-_', '+/');
+        $remainder = strlen($padded) % 4;
+        if ($remainder !== 0) {
+            $padded .= str_repeat('=', 4 - $remainder);
+        }
+        return base64_decode($padded);
     }
 }
