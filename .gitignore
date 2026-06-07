@@ -1,0 +1,13 @@
+.env
+.env.backup
+.env.production
+/storage/*.gitkeep
+/storage/*/!.gitkeep
+/logs/*.log
+/mysql-data/
+/redis-data/
+/certs/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

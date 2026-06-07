@@ -1,0 +1,46 @@
+FROM php:8.2-fpm-alpine
+
+RUN apk add --no-cache \
+    nginx \
+    fcgi \
+    openrc \
+    Supervisor \
+    libzip-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    curl \
+    cron \
+    bash \
+    mysql-client \
+    redis-cli \
+    git
+
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    zip \
+    mbstring \
+    xml \
+    json \
+    gd
+
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del .build-deps
+
+COPY nginx.conf /etc/nginx/http.d/nginx.conf
+COPY php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY supervisord.conf /etc/supervisord.conf
+
+RUN mkdir -p /var/www/html/storage \
+    /var/www/html/logs \
+    /run \
+    /var/spool/cron
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/logs
+
+RUN crontab -r || true
+
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
