@@ -4,26 +4,27 @@ RUN apk add --no-cache \
     nginx \
     fcgi \
     openrc \
-    Supervisor \
+    supervisor \
     libzip-dev \
     oniguruma-dev \
     libxml2-dev \
     curl \
-    cron \
+    dcron \
     bash \
     mysql-client \
-    redis-cli \
-    git
+    redis \
+    git \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    freetype-dev
 
-RUN docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    mysqli \
-    zip \
-    mbstring \
-    xml \
-    json \
-    gd
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+RUN docker-php-ext-install zip mbstring
+
+RUN docker-php-ext-install xml
+
+RUN docker-php-ext-install gd
 
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     && pecl install redis \
