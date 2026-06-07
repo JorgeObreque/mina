@@ -7,11 +7,11 @@
  */
 class Config
 {
-    const BASE_URL = 'http://localhost:8080';
+    const BASE_URL = 'http://91.99.168.96';
 
     const LANGUAGE = 'english';
 
-    const DEBUG_MODE = true;
+    const DEBUG_MODE = false;
 
     const DB_HOST = 'mysql';
     const DB_NAME = 'agenda_saas';
