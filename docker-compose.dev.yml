@@ -6,6 +6,7 @@ services:
     container_name: mina-nginx-proxy
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/dbadmin.htpasswd:/etc/nginx/dbadmin.htpasswd:ro
       - ./src:/var/www/html:ro
     ports:
       - "8080:80"
@@ -54,6 +55,15 @@ services:
     container_name: mina-redis
     volumes:
       - ./redis-data:/data
+    networks:
+      - internal
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: mina-adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
     networks:
       - internal
     restart: unless-stopped

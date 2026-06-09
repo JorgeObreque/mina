@@ -8,6 +8,7 @@ AGENTS.md
 /mysql-data/
 /redis-data/
 /certs/
+/nginx/dbadmin.htpasswd
 *.swp
 *.swo
 .DS_Store
